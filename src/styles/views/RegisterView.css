@@ -1,0 +1,496 @@
+/* RegisterView Component Styles */
+.register-view {
+  min-height: 100vh;
+  background-color: #f9fafb;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3rem 1rem;
+}
+
+/* Container */
+.register-container {
+  width: 100%;
+  max-width: 28rem;
+  margin: 0 auto;
+}
+
+/* Header */
+.register-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.register-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.register-logo-container {
+  width: 3rem;
+  height: 3rem;
+  background-color: #2563eb;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.register-logo-container svg {
+  width: 2rem;
+  height: 2rem;
+  color: white;
+}
+
+.register-title {
+  font-size: 1.875rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.register-subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.register-subtitle a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.register-subtitle a:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+/* Form Card */
+.register-card {
+  background: white;
+  padding: 2rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+@media (min-width: 640px) {
+  .register-card {
+    padding: 2rem 2.5rem;
+  }
+}
+
+/* Form */
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Error Message */
+.register-error {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+/* Form Groups */
+.register-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.register-form-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.register-form-input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  transition: all 0.2s ease;
+  background-color: white;
+}
+
+.register-form-input::placeholder {
+  color: #9ca3af;
+}
+
+.register-form-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.register-form-input.error {
+  border-color: #dc2626;
+}
+
+.register-form-input.error:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.register-form-error {
+  font-size: 0.875rem;
+  color: #dc2626;
+  margin-top: 0.25rem;
+}
+
+.register-form-hint {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  line-height: 1.4;
+}
+
+/* Password Strength Indicator */
+.register-password-strength {
+  margin-top: 0.5rem;
+}
+
+.register-strength-bar {
+  height: 4px;
+  background-color: #e5e7eb;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 0.25rem;
+}
+
+.register-strength-fill {
+  height: 100%;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+.register-strength-fill.weak {
+  background-color: #dc2626;
+  width: 25%;
+}
+
+.register-strength-fill.fair {
+  background-color: #f59e0b;
+  width: 50%;
+}
+
+.register-strength-fill.good {
+  background-color: #10b981;
+  width: 75%;
+}
+
+.register-strength-fill.strong {
+  background-color: #059669;
+  width: 100%;
+}
+
+.register-strength-text {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+/* Terms Checkbox */
+.register-terms {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.register-terms input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  color: #2563eb;
+  border-radius: 0.25rem;
+  border: 1px solid #d1d5db;
+  cursor: pointer;
+  margin-top: 0.125rem;
+  flex-shrink: 0;
+}
+
+.register-terms input[type="checkbox"]:focus {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.register-terms label {
+  color: #374151;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.register-terms a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.register-terms a:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+/* Submit Button */
+.register-submit {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  background-color: #2563eb;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.register-submit:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.register-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.register-submit-spinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.75rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Divider */
+.register-divider {
+  position: relative;
+  margin: 1.5rem 0;
+}
+
+.register-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: #e5e7eb;
+}
+
+.register-divider-text {
+  position: relative;
+  background-color: white;
+  padding: 0 1rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  text-align: center;
+  display: block;
+}
+
+/* Social Buttons */
+.register-social {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.register-social-button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background-color: white;
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.register-social-button:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.register-social-button svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .register-view {
+    padding: 2rem 1rem;
+  }
+  
+  .register-title {
+    font-size: 1.5rem;
+  }
+  
+  .register-social {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .register-view {
+    background-color: #111827;
+  }
+  
+  .register-title {
+    color: #f9fafb;
+  }
+  
+  .register-subtitle {
+    color: #9ca3af;
+  }
+  
+  .register-card {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+  
+  .register-form-input {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+  }
+  
+  .register-form-input::placeholder {
+    color: #9ca3af;
+  }
+  
+  .register-form-input:focus {
+    border-color: #60a5fa;
+  }
+  
+  .register-form-label {
+    color: #d1d5db;
+  }
+  
+  .register-form-hint {
+    color: #9ca3af;
+  }
+  
+  .register-terms label {
+    color: #d1d5db;
+  }
+  
+  .register-strength-bar {
+    background-color: #374151;
+  }
+  
+  .register-strength-text {
+    color: #9ca3af;
+  }
+  
+  .register-divider::before {
+    background-color: #374151;
+  }
+  
+  .register-divider-text {
+    background-color: #1f2937;
+    color: #9ca3af;
+  }
+  
+  .register-social-button {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #d1d5db;
+  }
+  
+  .register-social-button:hover {
+    background-color: #4b5563;
+  }
+  
+  .register-error {
+    background-color: rgba(220, 38, 38, 0.1);
+    border-color: rgba(220, 38, 38, 0.2);
+    color: #f87171;
+  }
+}
+
+/* Focus states for accessibility */
+.register-form-input:focus,
+.register-submit:focus,
+.register-social-button:focus,
+.register-terms input[type="checkbox"]:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .register-view {
+    background-color: white !important;
+    color: black !important;
+  }
+  
+  .register-card {
+    box-shadow: none !important;
+    border: 1px solid #d1d5db !important;
+  }
+  
+  .register-submit,
+  .register-social {
+    display: none !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .register-form-input {
+    border-width: 2px;
+  }
+  
+  .register-submit {
+    border: 2px solid currentColor;
+  }
+  
+  .register-strength-bar {
+    border: 1px solid currentColor;
+  }
+}
+
+/* Animation for form entrance */
+@keyframes registerFormSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.register-card {
+  animation: registerFormSlideIn 0.5s ease-out;
+} 

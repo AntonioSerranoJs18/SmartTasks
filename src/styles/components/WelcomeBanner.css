@@ -1,0 +1,207 @@
+/* WelcomeBanner Component Styles */
+.welcome-banner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  padding: 32px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
+  margin-bottom: 32px;
+}
+
+.welcome-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+  opacity: 0.3;
+}
+
+.welcome-banner-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.welcome-banner-text {
+  flex: 1;
+}
+
+.welcome-banner-greeting {
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.welcome-banner-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 12px;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.welcome-banner-subtitle {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.5;
+  margin: 0;
+  font-weight: 400;
+}
+
+.welcome-banner-icon {
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.welcome-banner-icon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+  border-radius: 20px;
+}
+
+.welcome-banner-icon svg {
+  width: 40px;
+  height: 40px;
+  color: #ffffff;
+  position: relative;
+  z-index: 1;
+}
+
+/* Animation for banner entrance */
+@keyframes welcomeBannerSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.welcome-banner {
+  animation: welcomeBannerSlideIn 0.8s ease-out;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .welcome-banner {
+    padding: 24px;
+  }
+  
+  .welcome-banner-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+  }
+  
+  .welcome-banner-title {
+    font-size: 28px;
+  }
+  
+  .welcome-banner-icon {
+    width: 64px;
+    height: 64px;
+  }
+  
+  .welcome-banner-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-banner {
+    padding: 20px;
+    border-radius: 16px;
+  }
+  
+  .welcome-banner-title {
+    font-size: 24px;
+  }
+  
+  .welcome-banner-subtitle {
+    font-size: 14px;
+  }
+  
+  .welcome-banner-greeting {
+    font-size: 14px;
+  }
+  
+  .welcome-banner-icon {
+    width: 56px;
+    height: 56px;
+  }
+  
+  .welcome-banner-icon svg {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .welcome-banner {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    box-shadow: 0 10px 25px rgba(30, 41, 59, 0.3);
+  }
+  
+  .welcome-banner-icon {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* Focus management */
+.welcome-banner:focus-within {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .welcome-banner {
+    background: #f8fafc !important;
+    color: #111827 !important;
+    box-shadow: none;
+    border: 1px solid #e5e7eb;
+  }
+  
+  .welcome-banner-icon {
+    background: #e5e7eb !important;
+    border-color: #d1d5db !important;
+  }
+  
+  .welcome-banner-icon svg {
+    color: #6b7280 !important;
+  }
+  
+  .welcome-banner-greeting,
+  .welcome-banner-subtitle {
+    color: #6b7280 !important;
+  }
+} 
