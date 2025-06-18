@@ -181,7 +181,7 @@
 /* Main Content */
 .dashboard-main {
   flex: 1;
-  margin-left: 280px; /* Espacio para el sidebar por defecto */
+  margin-left: 0; /* Por defecto, sin sidebar */
   transition: margin-left 0.3s ease-in-out;
   min-height: 100vh;
   background-color: #f8fafc;
@@ -296,7 +296,11 @@
   }
   
   .dashboard-main {
-    margin-left: 0; /* Sin margen en móvil */
+    margin-left: 0 !important;
+  }
+  
+  .dashboard-main.with-sidebar {
+    margin-left: 0 !important;
   }
   
   .dashboard-menu-button {

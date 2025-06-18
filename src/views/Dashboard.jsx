@@ -167,11 +167,12 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className={`dashboard-main ${sidebarOpen ? 'with-sidebar' : ''}`}>
+      <div className={`dashboard-main${sidebarOpen ? ' with-sidebar' : ''}`}>
         {!sidebarOpen && (
           <button
             onClick={() => setSidebarOpen(true)}
             className="dashboard-menu-button"
+            aria-label="Abrir menú lateral"
           >
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -180,8 +181,9 @@ const Dashboard = () => {
         )}
 
         <div 
-          className={`dashboard-overlay ${sidebarOpen ? 'visible' : ''}`}
+          className={`dashboard-overlay${sidebarOpen ? ' visible' : ''}`}
           onClick={() => setSidebarOpen(false)}
+          style={{ pointerEvents: sidebarOpen ? 'auto' : 'none' }}
         />
 
         <div className="dashboard-content">
