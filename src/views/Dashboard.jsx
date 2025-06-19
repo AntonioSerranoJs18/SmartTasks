@@ -3,6 +3,7 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import WelcomeBanner from '../src-react/components/WelcomeBanner';
 import StatCard from '../src-react/components/StatCard';
 import PriorityCard from '../src-react/components/PriorityCard';
+import Home from './Home';
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -31,6 +32,7 @@ const Dashboard = () => {
   };
 
   const navigation = [
+    { name: 'Home', href: '/', icon: '🏠' },
     { name: 'Tareas', href: '/tasks', icon: '📋' },
     { name: 'Proyectos', href: '/projects', icon: '📁' },
     { name: 'Equipo', href: '/team', icon: '👥' },
@@ -118,7 +120,7 @@ const Dashboard = () => {
     }
   ];
 
-  const isMainDashboard = location.pathname === '/' || location.pathname === '/tasks';
+  const isMainDashboard = location.pathname === '/';
 
   return (
     <div className="dashboard">
@@ -189,21 +191,7 @@ const Dashboard = () => {
         <div className="dashboard-content">
           <div className="dashboard-container">
             {isMainDashboard ? (
-              <>
-                <WelcomeBanner userName={localStorage.getItem('userName') || 'Usuario'} />
-                
-                <div className="dashboard-stats">
-                  {stats.map((stat, index) => (
-                    <StatCard key={index} {...stat} />
-                  ))}
-                </div>
-
-                <div className="dashboard-priorities">
-                  {priorities.map((priority, index) => (
-                    <PriorityCard key={index} {...priority} />
-                  ))}
-                </div>
-              </>
+              <Home />
             ) : (
               <Outlet />
             )}

@@ -72,16 +72,26 @@ const RegisterView = () => {
     setIsLoading(true);
 
     try {
-      // Simular llamada a API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Simular registro exitoso
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('userName', formData.fullName.split(' ')[0]);
-      
-      navigate('/');
+      const response = await fetch('https://sapi-85vo.onrender.com/api/usuarios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre: formData.fullName,
+          email: formData.email,
+          contraseña_hash: formData.password
+        })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        // Registro exitoso
+        localStorage.setItem('userName', data.usuario.nombre);
+        alert('Usuario registrado correctamente. Ahora puedes iniciar sesión.');
+        navigate('/login');
+      } else {
+        setErrors({ general: data.error || 'Error al registrarse. Inténtalo de nuevo.' });
+      }
     } catch {
-      setErrors({ general: 'Error al registrarse. Inténtalo de nuevo.' });
+      setErrors({ general: 'Error de red. Inténtalo de nuevo.' });
     } finally {
       setIsLoading(false);
     }

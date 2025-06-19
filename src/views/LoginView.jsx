@@ -17,7 +17,6 @@ const LoginView = () => {
       ...prev,
       [name]: value
     }));
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -55,16 +54,26 @@ const LoginView = () => {
     setIsLoading(true);
 
     try {
-      // Simular llamada a API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Simular login exitoso
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('userName', formData.email.split('@')[0]);
-      
-      navigate('/');
+      const response = await fetch('https://sapi-85vo.onrender.com/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          contraseña: formData.password
+        })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userName', data.usuario.nombre);
+        localStorage.setItem('userId', data.usuario.id);
+        localStorage.setItem('isAuthenticated', 'true');
+        navigate('/');
+      } else {
+        setErrors({ general: data.error || 'Error al iniciar sesión. Inténtalo de nuevo.' });
+      }
     } catch {
-      setErrors({ general: 'Error al iniciar sesión. Inténtalo de nuevo.' });
+      setErrors({ general: 'Error de red. Inténtalo de nuevo.' });
     } finally {
       setIsLoading(false);
     }
