@@ -218,97 +218,88 @@
 .tasks-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .tasks-form-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .tasks-form-label {
-  font-size: 0.875rem;
   font-weight: 500;
   color: #374151;
+  margin-bottom: 0.25rem;
 }
 
 .tasks-form-input,
-.tasks-form-textarea,
-.tasks-form-select {
+.tasks-form-select,
+.tasks-form-textarea {
+  width: 100%;
   padding: 0.5rem 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
-  background-color: white;
+  font-size: 1rem;
+  color: #374151;
+  background: #fff;
+  transition: border-color 0.2s;
 }
 
 .tasks-form-input:focus,
-.tasks-form-textarea:focus,
-.tasks-form-select:focus {
+.tasks-form-select:focus,
+.tasks-form-textarea:focus {
   outline: none;
   border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-.tasks-form-textarea {
-  resize: vertical;
-  min-height: 6rem;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
 
 .tasks-form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 1rem;
+}
+
+@media (min-width: 600px) {
+  .tasks-form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .tasks-form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 0.75rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
-  margin-top: 1rem;
+  gap: 1rem;
+  margin-top: 1.5rem;
 }
 
 .tasks-form-button {
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 1.25rem;
+  border: none;
   border-radius: 0.375rem;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
+  transition: background 0.2s, color 0.2s;
+}
+
+.tasks-form-button.primary {
+  background: #2563eb;
+  color: #fff;
+}
+
+.tasks-form-button.primary:hover {
+  background: #1d4ed8;
 }
 
 .tasks-form-button.secondary {
-  background-color: white;
-  border-color: #d1d5db;
+  background: #f3f4f6;
   color: #374151;
 }
 
 .tasks-form-button.secondary:hover {
-  background-color: #f9fafb;
-  border-color: #9ca3af;
-}
-
-.tasks-form-button.primary {
-  background-color: #2563eb;
-  color: white;
-}
-
-.tasks-form-button.primary:hover {
-  background-color: #1d4ed8;
-}
-
-.tasks-form-button.danger {
-  background-color: #dc2626;
-  color: white;
-}
-
-.tasks-form-button.danger:hover {
-  background-color: #b91c1c;
+  background: #e5e7eb;
 }
 
 /* Animation for modal */

@@ -66,7 +66,7 @@ const LoginView = () => {
       if (response.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('userName', data.usuario.nombre);
-        localStorage.setItem('userId', data.usuario.id);
+        localStorage.setItem('userId', data.usuario._id || data.usuario.id);
         localStorage.setItem('isAuthenticated', 'true');
         navigate('/');
       } else {
