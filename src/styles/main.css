@@ -18,6 +18,8 @@
 @import './views/RegisterView.css';
 @import './views/Dashboard.css';
 
+@import './layouts/CalendarLayout.css';
+
 /* Global Styles */
 * {
   box-sizing: border-box;
