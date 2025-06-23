@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SearchBar from '../src-react/components/SearchBar';
 import JobCard from '../src-react/components/JobCard';
+import { useTasks } from '../src-react/context/TaskContext';
 
 // Función para sanitizar inputs
 const sanitizeInput = (input) => {
@@ -28,7 +29,7 @@ const isValidStatus = (status) => {
 };
 
 const TasksLayout = () => {
-  const [tasks, setTasks] = useState([]);
+  const { tasks, fetchTasks } = useTasks();
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -46,30 +47,8 @@ const TasksLayout = () => {
   };
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      const userId = localStorage.getItem('userId');
-      const token = localStorage.getItem('token');
-      if (!userId || !token) return;
-
-      try {
-        const response = await fetch(`https://sapi-85vo.onrender.com/api/tareas/usuario/${userId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) throw new Error('Error al obtener tareas');
-        
-        const data = await response.json();
-        setTasks(data.data || []);
-      } catch (error) {
-        console.error('Error al traer tareas:', error);
-        alert('Error al cargar las tareas');
-      }
-    };
-
     fetchTasks();
-  }, []);
+  }, [fetchTasks]);
 
   const handleSearch = (term) => {
     setSearchTerm(sanitizeInput(term));
@@ -300,9 +279,9 @@ const TasksLayout = () => {
         throw new Error(errorData.error || 'Error al crear la tarea');
       }
 
-      const data = await response.json();
-      setTasks([...tasks, data.data]);
+      await response.json();
       setShowCreateModal(false);
+      fetchTasks(); // Recargar tareas
     } catch (err) {
       console.error('Error al crear tarea:', err);
       alert(err.message || 'Error al crear la tarea');
@@ -312,11 +291,12 @@ const TasksLayout = () => {
   // Función segura para editar tarea
   const handleEditTask = async (taskData) => {
     const token = localStorage.getItem('token');
-    if (!token || !taskData.id) {
+    const taskId = taskData._id || taskData.id;
+    if (!token || !taskId) {
       alert('Datos inválidos para la edición');
       return;
     }
-
+  
     try {
       const body = {
         titulo: sanitizeInput(taskData.titulo),
@@ -324,66 +304,73 @@ const TasksLayout = () => {
         prioridad: taskData.prioridad,
         estado: taskData.estado
       };
-
+  
       if (taskData.fecha_entrega && isValidDate(taskData.fecha_entrega)) {
         body.fecha_entrega = taskData.fecha_entrega;
       }
-
-      const response = await fetch(`https://sapi-85vo.onrender.com/api/tareas/${taskData.id}`, {
-        method: 'PATCH',
+  
+      const response = await fetch(`https://sapi-85vo.onrender.com/api/tareas/${taskId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(body)
       });
-
+  
+      const responseText = await response.text();
+      console.log('Respuesta PUT:', responseText);
+  
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = JSON.parse(responseText);
         throw new Error(errorData.error || 'Error al editar la tarea');
       }
-
-      const data = await response.json();
-      setTasks(tasks.map(t => t.id === taskData.id ? data.data : t));
+  
+      JSON.parse(responseText);
       setShowEditModal(false);
+      fetchTasks(); // Recargar tareas
     } catch (err) {
       console.error('Error al editar tarea:', err);
       alert(err.message || 'Error al editar la tarea');
     }
   };
-
+  
   // Función segura para eliminar tarea
   const handleDeleteTask = async () => {
-    if (!deletingTask?.id) return;
-    
+    const taskId = deletingTask?._id || deletingTask?.id;
+    if (!taskId) return;
+  
     const token = localStorage.getItem('token');
     if (!token) {
       alert('No estás autenticado');
       return;
     }
-
+  
     try {
-      const response = await fetch(`https://sapi-85vo.onrender.com/api/tareas/${deletingTask.id}`, {
+      const response = await fetch(`https://sapi-85vo.onrender.com/api/tareas/${taskId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-
+  
+      const responseText = await response.text();
+      console.log('Respuesta DELETE:', responseText);
+  
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = JSON.parse(responseText);
         throw new Error(errorData.error || 'Error al eliminar la tarea');
       }
-
-      setTasks(tasks.filter(task => task.id !== deletingTask.id));
+  
       setDeletingTask(null);
       setShowDeleteModal(false);
+      fetchTasks(); // Recargar tareas
     } catch (err) {
       console.error('Error al eliminar tarea:', err);
       alert(err.message || 'Error al eliminar la tarea');
     }
   };
-
+  
   return (
     <div className="tasks-layout">
       <div className="tasks-header">

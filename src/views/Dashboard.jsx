@@ -4,10 +4,11 @@ import WelcomeBanner from "../src-react/components/WelcomeBanner";
 import StatCard from "../src-react/components/StatCard";
 import PriorityCard from "../src-react/components/PriorityCard";
 import Home from "./Home";
+import { useTasks } from "../src-react/context/TaskContext";
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [tasks, setTasks] = useState([]);
+  const { tasks, fetchTasks } = useTasks(); // usando contexto
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -25,25 +26,8 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      const userId = localStorage.getItem("userId");
-      const token = localStorage.getItem("token");
-      if (!userId || !token) return;
-      try {
-        const response = await fetch(
-          `https://sapi-85vo.onrender.com/api/tareas/usuario/${userId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        const data = await response.json();
-        setTasks(data.data || []);
-      } catch (error) {
-        console.error("Error al traer tareas:", error);
-      }
-    };
-    fetchTasks();
-  }, []);
+    fetchTasks(); // carga inicial de tareas
+  }, [fetchTasks]);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -60,12 +44,8 @@ const Dashboard = () => {
   ];
 
   const totalTareas = tasks.length;
-  const tareasEnProgreso = tasks.filter(
-    (t) => t.estado === "en_progreso"
-  ).length;
-  const tareasCompletadas = tasks.filter(
-    (t) => t.estado === "completada"
-  ).length;
+  const tareasEnProgreso = tasks.filter((t) => t.estado === "en_progreso").length;
+  const tareasCompletadas = tasks.filter((t) => t.estado === "completada").length;
   const prioritiesCount = tasks.reduce(
     (acc, t) => {
       acc[t.prioridad] = (acc[t.prioridad] || 0) + 1;
@@ -80,12 +60,7 @@ const Dashboard = () => {
       value: totalTareas.toString(),
       icon: (
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2"
-          />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
         </svg>
       ),
       color: "blue",
@@ -96,12 +71,7 @@ const Dashboard = () => {
       value: tareasEnProgreso.toString(),
       icon: (
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M13 10V3L4 14h7v7l9-11h-7z"
-          />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
       ),
       color: "yellow",
@@ -112,12 +82,7 @@ const Dashboard = () => {
       value: tareasCompletadas.toString(),
       icon: (
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 12l2 2 4-4"
-          />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
         </svg>
       ),
       color: "green",
@@ -128,12 +93,7 @@ const Dashboard = () => {
       value: "6",
       icon: (
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2"
-          />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2" />
         </svg>
       ),
       color: "purple",
@@ -148,12 +108,7 @@ const Dashboard = () => {
       color: "priority-high",
       icon: (
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 9v2m0 4h.01m-6.938 4h13.856"
-          />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856" />
         </svg>
       ),
     },
@@ -163,12 +118,7 @@ const Dashboard = () => {
       color: "priority-medium",
       icon: (
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 8v4l3 3"
-          />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3" />
         </svg>
       ),
     },
@@ -178,12 +128,7 @@ const Dashboard = () => {
       color: "priority-low",
       icon: (
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M5 13l4 4L19 7"
-          />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
         </svg>
       ),
     },
@@ -201,12 +146,7 @@ const Dashboard = () => {
             className="dashboard-sidebar-close"
           >
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
@@ -216,9 +156,7 @@ const Dashboard = () => {
               <div key={item.name} className="dashboard-nav-item">
                 <button
                   onClick={() => navigate(item.href)}
-                  className={`dashboard-nav-button ${
-                    location.pathname === item.href ? "active" : ""
-                  }`}
+                  className={`dashboard-nav-button ${location.pathname === item.href ? "active" : ""}`}
                 >
                   <span className="dashboard-nav-icon">{item.icon}</span>
                   {item.name}
@@ -230,12 +168,7 @@ const Dashboard = () => {
         <div className="dashboard-logout">
           <button onClick={handleLogout} className="dashboard-logout-button">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 16l4-4m0 0l-4-4m4 4H7"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7" />
             </svg>
             Cerrar Sesión
           </button>
@@ -250,12 +183,7 @@ const Dashboard = () => {
             aria-label="Abrir menú lateral"
           >
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
         )}
@@ -267,7 +195,7 @@ const Dashboard = () => {
           <div className="dashboard-container">
             {isMainDashboard ? (
               <>
-                <WelcomeBanner userName={localStorage.getItem("userName")} />{" "}
+                <WelcomeBanner userName={localStorage.getItem("userName")} />
                 <div className="dashboard-stats">
                   {stats.map((stat, i) => (
                     <StatCard key={i} {...stat} />
