@@ -1,4 +1,5 @@
 import React from 'react';
+import Recordatorio from './Recordatorio';
 
 const JobCard = ({ 
   title, 
@@ -8,7 +9,10 @@ const JobCard = ({
   dueDate, 
   assignedTo, 
   onEdit, 
-  onDelete 
+  onDelete, 
+  isCompleted,
+  _id,
+  id
 }) => {
   const statusLabels = {
     pending: "Pendiente",
@@ -34,11 +38,24 @@ const JobCard = ({
     });
   };
 
+  // Verificar si la tarea vence hoy
+  let venceHoy = false;
+  if (dueDate) {
+    const hoy = new Date();
+    hoy.setHours(0,0,0,0);
+    const fechaEntrega = new Date(dueDate);
+    fechaEntrega.setHours(0,0,0,0);
+    venceHoy = fechaEntrega.getTime() === hoy.getTime();
+  }
+
   return (
-    <div className="job-card">
+    <div className={`job-card${isCompleted ? ' job-card-completed' : ''}`}>
       <div className="job-card-header">
         <div className="job-card-content">
-          <h3 className="job-card-title">{title}</h3>
+          <h3 className="job-card-title">
+            {title}
+            <Recordatorio tareaId={id || _id} dueDate={dueDate} />
+          </h3>
           <p className="job-card-description">{description}</p>
         </div>
         <div className="job-card-actions">

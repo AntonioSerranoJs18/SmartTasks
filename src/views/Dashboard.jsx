@@ -53,7 +53,7 @@ const Dashboard = () => {
   const navigation = [
     { name: "Home", href: "/", icon: "🏠" },
     { name: "Tareas", href: "/tasks", icon: "📋" },
-    { name: "Equipo", href: "/team", icon: "👥" },
+    // { name: "Equipo", href: "/team", icon: "👥" },
     { name: "Calendario", href: "/calendar", icon: "📅" },
   ];
 
@@ -67,6 +67,26 @@ const Dashboard = () => {
     },
     { baja: 0, media: 0, alta: 0 }
   );
+
+  // Calcular tareas por vencer: tareas no completadas y con fecha de entrega en los próximos 3 días (incluyendo hoy)
+  const hoy = new Date();
+  hoy.setHours(0,0,0,0);
+  const tresDiasDespues = new Date(hoy);
+  tresDiasDespues.setDate(hoy.getDate() + 2); // hoy + 2 días = 3 días contando hoy
+  const tareasPorVencer = tasks.filter(t => {
+    if (t.estado === 'completada' || !t.fecha_entrega) return false;
+    const fechaEntrega = new Date(t.fecha_entrega);
+    fechaEntrega.setHours(0,0,0,0);
+    return fechaEntrega >= hoy && fechaEntrega <= tresDiasDespues;
+  }).length;
+
+  // Calcular tareas vencidas: tareas no completadas y con fecha de entrega pasada
+  const tareasVencidas = tasks.filter(t => {
+    if (t.estado === 'completada' || !t.fecha_entrega) return false;
+    const fechaEntrega = new Date(t.fecha_entrega);
+    fechaEntrega.setHours(0,0,0,0);
+    return fechaEntrega < hoy;
+  }).length;
 
   const stats = [
     {
@@ -102,16 +122,27 @@ const Dashboard = () => {
       color: "green",
       change: tareasCompletadas,
     },
+    // {
+    //   title: "Tareas por vencer",
+    //   value: tareasPorVencer.toString(),
+    //   icon: (
+    //     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    //       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    //     </svg>
+    //   ),
+    //   color: "purple",
+    //   change: tareasPorVencer,
+    // },
     {
-      title: "Proyectos Activos",
-      value: "6",
+      title: "Tareas vencidas",
+      value: tareasVencidas.toString(),
       icon: (
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
         </svg>
       ),
-      color: "purple",
-      change: -2,
+      color: "red",
+      change: tareasVencidas,
     },
   ];
 

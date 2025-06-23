@@ -22,14 +22,23 @@ const CalendarLayout = () => {
   useEffect(() => {
     const taskEvents = tasks
       .filter(task => task.fecha_entrega)
-      .map(task => ({
-        id: task._id || task.id,
-        title: task.titulo,
-        start: task.fecha_entrega,
-        allDay: true,
-        color: getPriorityColor(task.prioridad),
-        description: task.descripcion
-      }));
+      .map(task => {
+        let startDate = task.fecha_entrega;
+        if (/^\d{4}-\d{2}-\d{2}$/.test(task.fecha_entrega)) {
+          startDate = task.fecha_entrega;
+        } else {
+          const d = new Date(task.fecha_entrega);
+          startDate = d.toISOString().slice(0, 10);
+        }
+        return {
+          id: task._id || task.id,
+          title: task.titulo,
+          start: startDate,
+          allDay: true,
+          color: getPriorityColor(task.prioridad),
+          description: task.descripcion
+        };
+      });
     setEvents(taskEvents);
   }, [tasks]);
 
@@ -160,7 +169,8 @@ const CalendarLayout = () => {
           eventTimeFormat={{
             hour: '2-digit',
             minute: '2-digit',
-            hour12: true
+            hour12: true,
+            timeZone: 'local'
           }}
           datesSet={(arg) => setCalendarApi(arg.view.calendar)}
         />

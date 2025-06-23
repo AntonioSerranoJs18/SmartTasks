@@ -38,6 +38,7 @@ const TasksLayout = () => {
   const [deletingTask, setDeletingTask] = useState(null);
   const [filter, setFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
+  const TASKS_PER_PAGE = 6;
 
   const initialNewTask = {
     titulo: '',
@@ -65,6 +66,9 @@ const TasksLayout = () => {
     const matchesStatus = filter === 'all' || task.estado === filter;
     const matchesPriority = priorityFilter === 'all' || task.prioridad === priorityFilter;
     
+    // Si el filtro NO es "completada", ocultar tareas completadas
+    if (filter !== 'completada' && task.estado === 'completada') return false;
+
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
@@ -453,6 +457,7 @@ const TasksLayout = () => {
           filteredTasks.map(task => (
             <JobCard
               key={task._id || task.id}
+              id={task._id || task.id}
               title={sanitizeInput(task.titulo)}
               description={task.descripcion ? sanitizeInput(task.descripcion) : ''}
               status={task.estado}
@@ -461,6 +466,7 @@ const TasksLayout = () => {
               assignedTo={task.categoria ? sanitizeInput(task.categoria) : ''}
               onEdit={() => openEditModal(task)}
               onDelete={() => openDeleteModal(task)}
+              isCompleted={task.estado === 'completada'}
             />
           ))
         ) : (

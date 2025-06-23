@@ -424,4 +424,56 @@
   .tasks-grid {
     grid-template-columns: repeat(2, 1fr) !important;
   }
+}
+
+/* Paginación de tareas */
+.tasks-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  margin: 2rem 0 1rem 0;
+}
+
+.tasks-pagination-btn {
+  background: #4F46E5;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  box-shadow: 0 2px 8px rgba(79,70,229,0.08);
+  outline: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.tasks-pagination-btn:disabled {
+  background: #d1d5db;
+  color: #888;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.tasks-pagination-btn.prev {
+  background: #6366f1;
+}
+.tasks-pagination-btn.next {
+  background: #6366f1;
+}
+.tasks-pagination-btn:not(:disabled):hover {
+  background: #3730A3;
+  transform: translateY(-2px) scale(1.04);
+}
+.tasks-pagination-info {
+  font-size: 1.05rem;
+  color: #373737;
+  background: #f3f4f6;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 } 
