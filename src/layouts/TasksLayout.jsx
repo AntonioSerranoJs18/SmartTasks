@@ -2,6 +2,31 @@ import React, { useState, useEffect } from 'react';
 import SearchBar from '../src-react/components/SearchBar';
 import JobCard from '../src-react/components/JobCard';
 
+// Función para sanitizar inputs
+const sanitizeInput = (input) => {
+  if (typeof input !== 'string') return input;
+  return input.replace(/[;'"\\<>()=]/g, '');
+};
+
+// Función para validar fechas
+const isValidDate = (dateString) => {
+  if (!dateString) return true; // Permitir campo vacío
+  const regEx = /^\d{4}-\d{2}-\d{2}$/;
+  if (!dateString.match(regEx)) return false;
+  const d = new Date(dateString);
+  return !isNaN(d.getTime());
+};
+
+// Validar prioridad
+const isValidPriority = (priority) => {
+  return ['baja', 'media', 'alta'].includes(priority);
+};
+
+// Validar estado
+const isValidStatus = (status) => {
+  return ['pendiente', 'en_progreso', 'completada'].includes(status);
+};
+
 const TasksLayout = () => {
   const [tasks, setTasks] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -33,10 +58,13 @@ const TasksLayout = () => {
           }
         });
 
+        if (!response.ok) throw new Error('Error al obtener tareas');
+        
         const data = await response.json();
         setTasks(data.data || []);
       } catch (error) {
         console.error('Error al traer tareas:', error);
+        alert('Error al cargar las tareas');
       }
     };
 
@@ -44,21 +72,29 @@ const TasksLayout = () => {
   }, []);
 
   const handleSearch = (term) => {
-    setSearchTerm(term);
+    setSearchTerm(sanitizeInput(term));
   };
 
   const filteredTasks = tasks.filter(task => {
     if (!task || !task.titulo) return false;
+    
+    const cleanSearchTerm = searchTerm.toLowerCase();
     const matchesSearch =
-      task.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (task.descripcion && task.descripcion.toLowerCase().includes(searchTerm.toLowerCase()));
+      sanitizeInput(task.titulo).toLowerCase().includes(cleanSearchTerm) ||
+      (task.descripcion && sanitizeInput(task.descripcion).toLowerCase().includes(cleanSearchTerm));
+    
     const matchesStatus = filter === 'all' || task.estado === filter;
     const matchesPriority = priorityFilter === 'all' || task.prioridad === priorityFilter;
+    
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
   const openEditModal = (task) => {
-    setEditingTask({ ...task });
+    setEditingTask({ 
+      ...task,
+      titulo: sanitizeInput(task.titulo),
+      descripcion: task.descripcion ? sanitizeInput(task.descripcion) : ''
+    });
     setShowEditModal(true);
   };
 
@@ -73,7 +109,7 @@ const TasksLayout = () => {
       <div className="tasks-modal-overlay">
         <div className="tasks-modal">
           <div className="tasks-modal-header">
-            <h3 className="tasks-modal-title">{title}</h3>
+            <h3 className="tasks-modal-title">{sanitizeInput(title)}</h3>
             <button onClick={onClose} className="tasks-modal-close">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -87,19 +123,53 @@ const TasksLayout = () => {
   };
 
   const TaskForm = ({ initialTask, onSubmit, submitText, onCancel, isEdit }) => {
-    const [formState, setFormState] = React.useState(initialTask);
+    const [formState, setFormState] = useState({
+      ...initialTask,
+      titulo: sanitizeInput(initialTask.titulo),
+      descripcion: initialTask.descripcion ? sanitizeInput(initialTask.descripcion) : ''
+    });
 
-    React.useEffect(() => {
-      setFormState(initialTask);
-    }, [initialTask]);
+    const [errors, setErrors] = useState({});
 
     const handleChange = (e) => {
       const { name, value } = e.target;
-      setFormState((prev) => ({ ...prev, [name]: value }));
+      let cleanValue = value;
+      
+      // Sanitización según el tipo de campo
+      if (name === 'titulo' || name === 'descripcion') {
+        cleanValue = sanitizeInput(value);
+      }
+      
+      setFormState(prev => ({ ...prev, [name]: cleanValue }));
+      
+      // Validación en tiempo real
+      if (name === 'fecha_entrega' && value && !isValidDate(value)) {
+        setErrors(prev => ({ ...prev, fecha_entrega: 'Formato de fecha inválido' }));
+      } else if (name === 'prioridad' && !isValidPriority(value)) {
+        setErrors(prev => ({ ...prev, prioridad: 'Prioridad inválida' }));
+      } else if (name === 'estado' && !isValidStatus(value)) {
+        setErrors(prev => ({ ...prev, estado: 'Estado inválido' }));
+      } else {
+        setErrors(prev => ({ ...prev, [name]: null }));
+      }
     };
 
     const handleSubmit = (e) => {
       e.preventDefault();
+      
+      // Validación final antes de enviar
+      const newErrors = {};
+      if (!formState.titulo.trim()) newErrors.titulo = 'Título es requerido';
+      if (!formState.descripcion.trim()) newErrors.descripcion = 'Descripción es requerida';
+      if (formState.fecha_entrega && !isValidDate(formState.fecha_entrega)) newErrors.fecha_entrega = 'Fecha inválida';
+      if (!isValidPriority(formState.prioridad)) newErrors.prioridad = 'Prioridad inválida';
+      if (isEdit && !isValidStatus(formState.estado)) newErrors.estado = 'Estado inválido';
+      
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return;
+      }
+      
       onSubmit(formState);
     };
 
@@ -107,41 +177,50 @@ const TasksLayout = () => {
       <form onSubmit={handleSubmit}>
         <div className="tasks-form">
           <div className="tasks-form-group">
-            <label className="tasks-form-label">Título</label>
+            <label className="tasks-form-label">Título*</label>
             <input
               type="text"
               name="titulo"
               value={formState.titulo}
               onChange={handleChange}
               className="tasks-form-input"
+              maxLength="100"
               required
             />
+            {errors.titulo && <span className="error-message">{errors.titulo}</span>}
           </div>
+          
           <div className="tasks-form-group">
-            <label className="tasks-form-label">Descripción</label>
+            <label className="tasks-form-label">Descripción*</label>
             <textarea
               name="descripcion"
               value={formState.descripcion}
               onChange={handleChange}
               className="tasks-form-textarea"
               rows="3"
+              maxLength="500"
               required
             />
+            {errors.descripcion && <span className="error-message">{errors.descripcion}</span>}
           </div>
+          
           <div className="tasks-form-grid">
             <div className="tasks-form-group">
-              <label className="tasks-form-label">Prioridad</label>
+              <label className="tasks-form-label">Prioridad*</label>
               <select
                 name="prioridad"
                 value={formState.prioridad}
                 onChange={handleChange}
                 className="tasks-form-select"
+                required
               >
                 <option value="baja">Baja</option>
                 <option value="media">Media</option>
                 <option value="alta">Alta</option>
               </select>
+              {errors.prioridad && <span className="error-message">{errors.prioridad}</span>}
             </div>
+            
             <div className="tasks-form-group">
               <label className="tasks-form-label">Fecha de Entrega</label>
               <input
@@ -151,30 +230,158 @@ const TasksLayout = () => {
                 onChange={handleChange}
                 className="tasks-form-input"
               />
+              {errors.fecha_entrega && <span className="error-message">{errors.fecha_entrega}</span>}
             </div>
           </div>
+          
           {isEdit && (
             <div className="tasks-form-group">
-              <label className="tasks-form-label">Estado</label>
+              <label className="tasks-form-label">Estado*</label>
               <select
                 name="estado"
                 value={formState.estado}
                 onChange={handleChange}
                 className="tasks-form-select"
+                required
               >
                 <option value="pendiente">Pendiente</option>
                 <option value="en_progreso">En Progreso</option>
                 <option value="completada">Completada</option>
               </select>
+              {errors.estado && <span className="error-message">{errors.estado}</span>}
             </div>
           )}
+          
           <div className="tasks-form-actions">
-            <button type="button" onClick={onCancel} className="tasks-form-button secondary">Cancelar</button>
-            <button type="submit" className="tasks-form-button primary">{submitText}</button>
+            <button type="button" onClick={onCancel} className="tasks-form-button secondary">
+              Cancelar
+            </button>
+            <button type="submit" className="tasks-form-button primary">
+              {submitText}
+            </button>
           </div>
         </div>
       </form>
     );
+  };
+
+  // Función segura para crear tarea
+  const handleCreateTask = async (taskData) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('No estás autenticado');
+      return;
+    }
+
+    try {
+      const body = {
+        titulo: sanitizeInput(taskData.titulo),
+        descripcion: sanitizeInput(taskData.descripcion),
+        prioridad: taskData.prioridad,
+        estado: 'pendiente' // Estado inicial por defecto
+      };
+
+      // Validación adicional del backend
+      if (taskData.fecha_entrega && isValidDate(taskData.fecha_entrega)) {
+        body.fecha_entrega = taskData.fecha_entrega;
+      }
+
+      const response = await fetch('https://sapi-85vo.onrender.com/api/tareas', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al crear la tarea');
+      }
+
+      const data = await response.json();
+      setTasks([...tasks, data.data]);
+      setShowCreateModal(false);
+    } catch (err) {
+      console.error('Error al crear tarea:', err);
+      alert(err.message || 'Error al crear la tarea');
+    }
+  };
+
+  // Función segura para editar tarea
+  const handleEditTask = async (taskData) => {
+    const token = localStorage.getItem('token');
+    if (!token || !taskData.id) {
+      alert('Datos inválidos para la edición');
+      return;
+    }
+
+    try {
+      const body = {
+        titulo: sanitizeInput(taskData.titulo),
+        descripcion: sanitizeInput(taskData.descripcion),
+        prioridad: taskData.prioridad,
+        estado: taskData.estado
+      };
+
+      if (taskData.fecha_entrega && isValidDate(taskData.fecha_entrega)) {
+        body.fecha_entrega = taskData.fecha_entrega;
+      }
+
+      const response = await fetch(`https://sapi-85vo.onrender.com/api/tareas/${taskData.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al editar la tarea');
+      }
+
+      const data = await response.json();
+      setTasks(tasks.map(t => t.id === taskData.id ? data.data : t));
+      setShowEditModal(false);
+    } catch (err) {
+      console.error('Error al editar tarea:', err);
+      alert(err.message || 'Error al editar la tarea');
+    }
+  };
+
+  // Función segura para eliminar tarea
+  const handleDeleteTask = async () => {
+    if (!deletingTask?.id) return;
+    
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('No estás autenticado');
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://sapi-85vo.onrender.com/api/tareas/${deletingTask.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al eliminar la tarea');
+      }
+
+      setTasks(tasks.filter(task => task.id !== deletingTask.id));
+      setDeletingTask(null);
+      setShowDeleteModal(false);
+    } catch (err) {
+      console.error('Error al eliminar tarea:', err);
+      alert(err.message || 'Error al eliminar la tarea');
+    }
   };
 
   return (
@@ -184,7 +391,11 @@ const TasksLayout = () => {
           <h1 className="tasks-title">Gestión de Tareas</h1>
           <p className="tasks-subtitle">Organiza y gestiona todas tus tareas de manera eficiente</p>
         </div>
-        <button onClick={() => setShowCreateModal(true)} className="tasks-create-button">
+        <button 
+          onClick={() => setShowCreateModal(true)} 
+          className="tasks-create-button"
+          aria-label="Crear nueva tarea"
+        >
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
@@ -194,11 +405,15 @@ const TasksLayout = () => {
 
       <div className="tasks-filters">
         <div className="tasks-search">
-          <SearchBar onSearch={handleSearch} placeholder="Buscar tareas..." />
+          <SearchBar 
+            onSearch={handleSearch} 
+            placeholder="Buscar tareas..." 
+            maxLength="50"
+          />
         </div>
         <select
           value={filter}
-          onChange={(e) => setFilter(e.target.value)}
+          onChange={(e) => setFilter(sanitizeInput(e.target.value))}
           className="tasks-filter-select"
         >
           <option value="all">Todas las tareas</option>
@@ -208,7 +423,7 @@ const TasksLayout = () => {
         </select>
         <select
           value={priorityFilter}
-          onChange={(e) => setPriorityFilter(e.target.value)}
+          onChange={(e) => setPriorityFilter(sanitizeInput(e.target.value))}
           className="tasks-filter-select"
         >
           <option value="all">Todas las prioridades</option>
@@ -223,12 +438,12 @@ const TasksLayout = () => {
           filteredTasks.map(task => (
             <JobCard
               key={task._id || task.id}
-              title={task.titulo}
-              description={task.descripcion}
+              title={sanitizeInput(task.titulo)}
+              description={task.descripcion ? sanitizeInput(task.descripcion) : ''}
               status={task.estado}
               priority={task.prioridad}
               dueDate={task.fecha_entrega}
-              assignedTo={task.categoria}
+              assignedTo={task.categoria ? sanitizeInput(task.categoria) : ''}
               onEdit={() => openEditModal(task)}
               onDelete={() => openDeleteModal(task)}
             />
@@ -248,79 +463,18 @@ const TasksLayout = () => {
       <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Crear Nueva Tarea">
         <TaskForm
           initialTask={initialNewTask}
-          onSubmit={async (task) => {
-            const token = localStorage.getItem('token');
-            try {
-              const body = {
-                titulo: task.titulo,
-                descripcion: task.descripcion,
-                prioridad: task.prioridad,
-              };
-              if (task.fecha_entrega) body.fecha_entrega = task.fecha_entrega;
-
-              const response = await fetch('https://sapi-85vo.onrender.com/api/tareas', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(body)
-              });
-
-              const data = await response.json();
-              console.log('POST response:', response.status, data);
-
-              if (response.ok) {
-                setTasks([...tasks, data.data]);
-                setShowCreateModal(false);
-              } else {
-                alert(data.error || 'Error al crear la tarea');
-              }
-            } catch (err) {
-              console.error('POST error:', err);
-              alert('Error de red al crear la tarea');
-            }
-          }}
+          onSubmit={handleCreateTask}
           submitText="Crear Tarea"
           onCancel={() => setShowCreateModal(false)}
           isEdit={false}
         />
       </Modal>
 
-      {/* MODAL EDITAR TAREA */}
       <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} title="Editar Tarea">
         {editingTask && (
           <TaskForm
             initialTask={editingTask}
-            onSubmit={async (task) => {
-              const token = localStorage.getItem('token');
-              try {
-                const body = {
-                  titulo: task.titulo,
-                  descripcion: task.descripcion,
-                  prioridad: task.prioridad,
-                  estado: task.estado
-                };
-                if (task.fecha_entrega) body.fecha_entrega = task.fecha_entrega;
-                const response = await fetch(`https://sapi-85vo.onrender.com/api/tareas/${task.id || task._id}`, {
-                  method: 'PATCH',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                  },
-                  body: JSON.stringify(body)
-                });
-                const data = await response.json();
-                if (response.ok) {
-                  setTasks(tasks.map(t => (t.id === (task.id || task._id) || t._id === (task.id || task._id)) ? data.data : t));
-                  setShowEditModal(false);
-                } else {
-                  alert(data.error || 'Error al editar la tarea');
-                }
-              } catch {
-                alert('Error de red al editar la tarea');
-              }
-            }}
+            onSubmit={handleEditTask}
             submitText="Guardar Cambios"
             onCancel={() => setShowEditModal(false)}
             isEdit={true}
@@ -328,7 +482,6 @@ const TasksLayout = () => {
         )}
       </Modal>
 
-      {/* MODAL ELIMINAR TAREA */}
       <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Confirmar Eliminación">
         <div className="tasks-form">
           <p className="tasks-form-label">
@@ -338,30 +491,16 @@ const TasksLayout = () => {
             Esta acción no se puede deshacer.
           </p>
           <div className="tasks-form-actions">
-            <button type="button" onClick={() => setShowDeleteModal(false)} className="tasks-form-button secondary">Cancelar</button>
+            <button 
+              type="button" 
+              onClick={() => setShowDeleteModal(false)} 
+              className="tasks-form-button secondary"
+            >
+              Cancelar
+            </button>
             <button
               type="button"
-              onClick={async () => {
-                const token = localStorage.getItem('token');
-                try {
-                  const response = await fetch(`https://sapi-85vo.onrender.com/api/tareas/${deletingTask.id || deletingTask._id}`, {
-                    method: 'DELETE',
-                    headers: {
-                      'Authorization': `Bearer ${token}`
-                    }
-                  });
-                  if (response.ok) {
-                    setTasks(tasks.filter(task => (task.id || task._id) !== (deletingTask.id || deletingTask._id)));
-                    setDeletingTask(null);
-                    setShowDeleteModal(false);
-                  } else {
-                    const data = await response.json();
-                    alert(data.error || 'Error al eliminar la tarea');
-                  }
-                } catch {
-                  alert('Error de red al eliminar la tarea');
-                }
-              }}
+              onClick={handleDeleteTask}
               className="tasks-form-button danger"
             >
               Eliminar

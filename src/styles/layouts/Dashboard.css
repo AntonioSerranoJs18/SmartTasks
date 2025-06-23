@@ -327,15 +327,15 @@
 /* Dark Mode Support */
 @media (prefers-color-scheme: dark) {
   .dashboard {
-    background-color: #0f172a;
+    background-color: #fff;
   }
   
   .dashboard-main {
-    background-color: #0f172a;
+    background-color: #ffffff;
   }
   
   .dashboard-content {
-    background-color: #0f172a;
+    background-color: #ffffff;
   }
 }
 

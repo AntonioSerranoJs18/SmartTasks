@@ -7,6 +7,7 @@ import ProjectsLayout from '../layouts/ProjectsLayout';
 import TeamLayout from '../layouts/TeamLayout';
 import ProtectedRoute from './ProtectedRoute';
 import '../styles/main.css';
+import CalendarLayout from '../layouts/CalendarLayout';
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
       {
         path: 'projects',
         element: <ProjectsLayout />
+      },
+      {
+        path: 'calendar',
+        element: <CalendarLayout />
       },
       {
         path: 'team',
