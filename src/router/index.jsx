@@ -23,10 +23,6 @@ const router = createBrowserRouter([
         element: <TasksLayout />
       },
       {
-        path: 'projects',
-        element: <ProjectsLayout />
-      },
-      {
         path: 'calendar',
         element: <CalendarLayout />
       },

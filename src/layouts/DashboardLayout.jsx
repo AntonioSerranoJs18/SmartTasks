@@ -69,7 +69,6 @@ const DashboardLayout = () => {
   const navigation = [
     { name: 'Inicio', href: '/dashboard', icon: FaHome },
     { name: 'Tareas', href: '/tasks', icon: FaTasks },
-    { name: 'Proyectos', href: '/projects', icon: FaProjectDiagram },
     { name: 'Equipo', href: '/team', icon: FaUsers },
     { name: 'Calendario', href: '/calendar', icon: FaCalendarAlt },
   ];

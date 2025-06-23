@@ -6,15 +6,20 @@ export const TasksProvider = ({ children }) => {
   const [tasks, setTasks] = useState([]);
 
   const fetchTasks = useCallback(async () => {
-    const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
-    if (!userId || !token) return;
+    if (!token) return;
 
     try {
-      const response = await fetch(
-        `https://sapi-85vo.onrender.com/api/tareas/usuario/${userId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await fetch("https://sapi-85vo.onrender.com/api/tareas", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al obtener las tareas");
+      }
+
       const data = await response.json();
       setTasks(data.data || []);
     } catch (error) {

@@ -8,7 +8,7 @@ import { TasksProvider } from './src-react/context/TaskContext.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <TasksProvider>
-      <App />
+        <App />
     </TasksProvider>
   </StrictMode>,
 )

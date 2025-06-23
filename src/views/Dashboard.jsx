@@ -53,7 +53,6 @@ const Dashboard = () => {
   const navigation = [
     { name: "Home", href: "/", icon: "🏠" },
     { name: "Tareas", href: "/tasks", icon: "📋" },
-    { name: "Proyectos", href: "/projects", icon: "📁" },
     { name: "Equipo", href: "/team", icon: "👥" },
     { name: "Calendario", href: "/calendar", icon: "📅" },
   ];

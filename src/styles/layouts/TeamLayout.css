@@ -53,7 +53,7 @@
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
-  color: white;
+  color: rgb(0, 0, 0);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -652,6 +652,10 @@
   
   .team-form-button-secondary:hover {
     background: #4b5563;
+  }
+  
+  .team-card-title {
+    color: #000000;
   }
 }
 
