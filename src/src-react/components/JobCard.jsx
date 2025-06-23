@@ -38,23 +38,13 @@ const JobCard = ({
     });
   };
 
-  // Verificar si la tarea vence hoy
-  let venceHoy = false;
-  if (dueDate) {
-    const hoy = new Date();
-    hoy.setHours(0,0,0,0);
-    const fechaEntrega = new Date(dueDate);
-    fechaEntrega.setHours(0,0,0,0);
-    venceHoy = fechaEntrega.getTime() === hoy.getTime();
-  }
-
   return (
     <div className={`job-card${isCompleted ? ' job-card-completed' : ''}`}>
       <div className="job-card-header">
         <div className="job-card-content">
           <h3 className="job-card-title">
             {title}
-            <Recordatorio tareaId={id || _id} dueDate={dueDate} />
+            <Recordatorio tareaId={id || _id} />
           </h3>
           <p className="job-card-description">{description}</p>
         </div>

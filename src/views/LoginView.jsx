@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTasks } from '../src-react/context/TaskContext';
 import '../styles/views/LoginView.css';
 
 const LoginView = () => {
@@ -10,6 +11,7 @@ const LoginView = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { checkRemindersOnLogin } = useTasks();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -68,6 +70,7 @@ const LoginView = () => {
         localStorage.setItem('userName', data.usuario.nombre);
         localStorage.setItem('userId', data.usuario._id || data.usuario.id);
         localStorage.setItem('isAuthenticated', 'true');
+        checkRemindersOnLogin();
         navigate('/');
       } else {
         setErrors({ general: data.error || 'Error al iniciar sesión. Inténtalo de nuevo.' });

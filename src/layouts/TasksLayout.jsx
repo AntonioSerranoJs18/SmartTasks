@@ -39,6 +39,7 @@ const TasksLayout = () => {
   const [filter, setFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const TASKS_PER_PAGE = 6;
+  const [currentPage, setCurrentPage] = useState(1);
 
   const initialNewTask = {
     titulo: '',
@@ -50,6 +51,10 @@ const TasksLayout = () => {
   useEffect(() => {
     fetchTasks();
   }, [fetchTasks]);
+
+  useEffect(() => {
+    setCurrentPage(1); // Reiniciar a la primera página si cambia el filtro o búsqueda
+  }, [searchTerm, filter, priorityFilter, tasks]);
 
   const handleSearch = (term) => {
     setSearchTerm(sanitizeInput(term));
@@ -71,6 +76,20 @@ const TasksLayout = () => {
 
     return matchesSearch && matchesStatus && matchesPriority;
   });
+
+  // Ordenar tareas filtradas por fecha de entrega
+  const orderedFilteredTasks = filteredTasks.slice().sort((a, b) => {
+    if (!a.fecha_entrega) return 1;
+    if (!b.fecha_entrega) return -1;
+    return new Date(a.fecha_entrega) - new Date(b.fecha_entrega);
+  });
+
+  // Calcular tareas a mostrar en la página actual
+  const totalPages = Math.ceil(orderedFilteredTasks.length / TASKS_PER_PAGE);
+  const paginatedTasks = orderedFilteredTasks.slice(
+    (currentPage - 1) * TASKS_PER_PAGE,
+    currentPage * TASKS_PER_PAGE
+  );
 
   const openEditModal = (task) => {
     setEditingTask({ 
@@ -453,8 +472,8 @@ const TasksLayout = () => {
       </div>
 
       <div className="tasks-grid">
-        {filteredTasks.length > 0 ? (
-          filteredTasks.map(task => (
+        {paginatedTasks.length > 0 ? (
+          paginatedTasks.map(task => (
             <JobCard
               key={task._id || task.id}
               id={task._id || task.id}
@@ -480,6 +499,29 @@ const TasksLayout = () => {
           </div>
         )}
       </div>
+
+      {/* Paginación */}
+      {totalPages > 1 && (
+        <div className="tasks-pagination">
+          <button
+            className="tasks-pagination-btn prev"
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+          >
+            &#8592; Anterior
+          </button>
+          <span className="tasks-pagination-info">
+            Página <b>{currentPage}</b> de <b>{totalPages}</b>
+          </span>
+          <button
+            className="tasks-pagination-btn next"
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+          >
+            Siguiente &#8594;
+          </button>
+        </div>
+      )}
 
       <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Crear Nueva Tarea">
         <TaskForm

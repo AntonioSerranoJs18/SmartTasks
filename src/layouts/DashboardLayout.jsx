@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
+import { useTasks } from '../src-react/context/TaskContext';
 import { 
   FaTachometerAlt, 
   FaTasks, 
@@ -25,6 +26,7 @@ const DashboardLayout = () => {
   const [statusMessage, setStatusMessage] = useState('');
   const [statusClass, setStatusClass] = useState('');
   const [showLogoutAlert, setShowLogoutAlert] = useState(false);
+  const { resetRemindersFlag } = useTasks();
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,6 +41,7 @@ const DashboardLayout = () => {
     
     setTimeout(() => {
       setStatusMessage('');
+      resetRemindersFlag();
       localStorage.removeItem('isAuthenticated');
       localStorage.removeItem('user');
       localStorage.removeItem('token');
