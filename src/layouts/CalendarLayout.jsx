@@ -14,25 +14,66 @@ const CalendarLayout = () => {
   const [calendarApi, setCalendarApi] = useState(null);
 
   useEffect(() => {
-    // Datos de ejemplo
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dayAfterTomorrow = new Date(today);
+    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+    const nextWeek = new Date(today);
+    nextWeek.setDate(nextWeek.getDate() + 7);
+
+    // Bro aquí dejée el ejemplo de eventos que puedes usar para probar el calendario
     const sampleEvents = [
       {
         id: '1',
-        title: 'Reunión Ejecutiva',
-        start: new Date(),
-        end: new Date(new Date().setHours(new Date().getHours() + 2)),
-        color: '#4F46E5'
+        title: 'Reunión con equipo',
+        start: new Date(new Date().setHours(10, 0, 0, 0)),
+        end: new Date(new Date().setHours(11, 30, 0, 0)),
+        color: '#4F46E5',
+        description: 'Revisión del progreso del proyecto'
       },
       {
         id: '2',
-        title: 'Entrega de Proyecto',
-        start: new Date(new Date().setDate(new Date().getDate() + 3)),
+        title: 'Presentación cliente',
+        start: new Date(new Date().setDate(new Date().getDate() + 1)),
+        end: new Date(new Date().setDate(new Date().getDate() + 1)),
         allDay: true,
-        color: '#10B981'
+        color: '#10B981',
+        description: 'Demostración de las nuevas características'
+      },
+      {
+        id: '3',
+        title: 'Revisión de código',
+        start: new Date(new Date().setDate(new Date().getDate() + 2)),
+        end: new Date(new Date().setDate(new Date().getDate() + 2)),
+        allDay: true,
+        color: '#F59E0B',
+        description: 'Revisar PRs pendientes'
+      },
+      {
+        id: '4',
+        title: 'Reunión de equipo',
+        startTime: '09:00:00',
+        endTime: '10:00:00',
+        color: '#3B82F6',
+        description: 'Reunión semanal de coordinación',
+        daysOfWeek: [1],
+        startRecur: new Date(),
+        endRecur: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
+      },
+      {
+        id: '5',
+        title: 'Entrega de proyecto',
+        start: new Date(new Date().setDate(new Date().getDate() + 7)),
+        end: new Date(new Date().setDate(new Date().getDate() + 7)),
+        allDay: true,
+        color: '#7C3AED',
+        description: 'Entrega final al cliente'
       }
     ];
+
     setEvents(sampleEvents);
-  }, []);
+  }, [year, month, day]);
 
   const handleSearch = () => {
     if (!calendarApi) return;
@@ -106,7 +147,7 @@ const CalendarLayout = () => {
               value={month}
               onChange={(e) => {
                 setMonth(parseInt(e.target.value));
-                setDay(1); // Reset day when month changes
+                setDay(1);
               }}
               className="search-select"
             >
@@ -147,7 +188,13 @@ const CalendarLayout = () => {
           selectable={true}
           height="100%"
           nowIndicator
-          weekends={false}
+          weekends={true}
+          eventDisplay="block"
+          eventTimeFormat={{
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+          }}
           datesSet={(arg) => setCalendarApi(arg.view.calendar)}
         />
       </div>
