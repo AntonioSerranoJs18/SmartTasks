@@ -5,12 +5,15 @@ import StatCard from "../src-react/components/StatCard";
 import PriorityCard from "../src-react/components/PriorityCard";
 import Home from "./Home";
 import { useTasks } from "../src-react/context/TaskContext";
+import AlertDialog from "../src-react/components/AlertDialog";
+import "../styles/components/AlertDialog.css";
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { tasks, fetchTasks } = useTasks(); // usando contexto
   const navigate = useNavigate();
   const location = useLocation();
+  const [showLogoutAlert, setShowLogoutAlert] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -34,13 +37,25 @@ const Dashboard = () => {
     navigate("/login");
   };
 
+  const handleLogoutClick = () => {
+    setShowLogoutAlert(true);
+  };
+
+  const handleCancelLogout = () => {
+    setShowLogoutAlert(false);
+  };
+
+  const handleConfirmLogout = () => {
+    setShowLogoutAlert(false);
+    handleLogout();
+  };
+
   const navigation = [
     { name: "Home", href: "/", icon: "🏠" },
     { name: "Tareas", href: "/tasks", icon: "📋" },
     { name: "Proyectos", href: "/projects", icon: "📁" },
     { name: "Equipo", href: "/team", icon: "👥" },
     { name: "Calendario", href: "/calendar", icon: "📅" },
-    { name: "Ajustes", href: "/settings", icon: "⚙️" },
   ];
 
   const totalTareas = tasks.length;
@@ -166,7 +181,7 @@ const Dashboard = () => {
           </div>
         </nav>
         <div className="dashboard-logout">
-          <button onClick={handleLogout} className="dashboard-logout-button">
+          <button onClick={handleLogoutClick} className="dashboard-logout-button">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7" />
             </svg>
@@ -213,6 +228,15 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      <AlertDialog
+        isOpen={showLogoutAlert}
+        title="Cerrar Sesión"
+        message="¿Estás seguro de que deseas cerrar sesión?"
+        onConfirm={handleConfirmLogout}
+        onCancel={handleCancelLogout}
+        confirmText="Salir"
+        cancelText="Cancelar"
+      />
     </div>
   );
 };

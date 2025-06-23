@@ -5,8 +5,10 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import esLocale from '@fullcalendar/core/locales/es';
 import { FiCalendar, FiSearch } from 'react-icons/fi';
+import { useTasks } from '../src-react/context/TaskContext';
 
 const CalendarLayout = () => {
+  const { tasks, fetchTasks } = useTasks();
   const [events, setEvents] = useState([]);
   const [year, setYear] = useState(new Date().getFullYear());
   const [month, setMonth] = useState(new Date().getMonth() + 1);
@@ -14,66 +16,31 @@ const CalendarLayout = () => {
   const [calendarApi, setCalendarApi] = useState(null);
 
   useEffect(() => {
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const dayAfterTomorrow = new Date(today);
-    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
-    const nextWeek = new Date(today);
-    nextWeek.setDate(nextWeek.getDate() + 7);
+    fetchTasks();
+  }, [fetchTasks]);
 
-    // Bro aquí dejée el ejemplo de eventos que puedes usar para probar el calendario
-    const sampleEvents = [
-      {
-        id: '1',
-        title: 'Reunión con equipo',
-        start: new Date(new Date().setHours(10, 0, 0, 0)),
-        end: new Date(new Date().setHours(11, 30, 0, 0)),
-        color: '#4F46E5',
-        description: 'Revisión del progreso del proyecto'
-      },
-      {
-        id: '2',
-        title: 'Presentación cliente',
-        start: new Date(new Date().setDate(new Date().getDate() + 1)),
-        end: new Date(new Date().setDate(new Date().getDate() + 1)),
+  useEffect(() => {
+    const taskEvents = tasks
+      .filter(task => task.fecha_entrega)
+      .map(task => ({
+        id: task._id || task.id,
+        title: task.titulo,
+        start: task.fecha_entrega,
         allDay: true,
-        color: '#10B981',
-        description: 'Demostración de las nuevas características'
-      },
-      {
-        id: '3',
-        title: 'Revisión de código',
-        start: new Date(new Date().setDate(new Date().getDate() + 2)),
-        end: new Date(new Date().setDate(new Date().getDate() + 2)),
-        allDay: true,
-        color: '#F59E0B',
-        description: 'Revisar PRs pendientes'
-      },
-      {
-        id: '4',
-        title: 'Reunión de equipo',
-        startTime: '09:00:00',
-        endTime: '10:00:00',
-        color: '#3B82F6',
-        description: 'Reunión semanal de coordinación',
-        daysOfWeek: [1],
-        startRecur: new Date(),
-        endRecur: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
-      },
-      {
-        id: '5',
-        title: 'Entrega de proyecto',
-        start: new Date(new Date().setDate(new Date().getDate() + 7)),
-        end: new Date(new Date().setDate(new Date().getDate() + 7)),
-        allDay: true,
-        color: '#7C3AED',
-        description: 'Entrega final al cliente'
-      }
-    ];
+        color: getPriorityColor(task.prioridad),
+        description: task.descripcion
+      }));
+    setEvents(taskEvents);
+  }, [tasks]);
 
-    setEvents(sampleEvents);
-  }, [year, month, day]);
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 'alta': return '#F59E0B';
+      case 'media': return '#3B82F6';
+      case 'baja': return '#10B981';
+      default: return '#6B7280';
+    }
+  };
 
   const handleSearch = () => {
     if (!calendarApi) return;

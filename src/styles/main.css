@@ -6,6 +6,7 @@
 @import './components/StatCard.css';
 @import './components/PriorityCard.css';
 @import './components/JobCard.css';
+@import './components/AlertDialog.css';
 
 /* Import all layout styles */
 @import './layouts/Dashboard.css';

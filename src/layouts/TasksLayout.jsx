@@ -105,7 +105,10 @@ const TasksLayout = () => {
     const [formState, setFormState] = useState({
       ...initialTask,
       titulo: sanitizeInput(initialTask.titulo),
-      descripcion: initialTask.descripcion ? sanitizeInput(initialTask.descripcion) : ''
+      descripcion: initialTask.descripcion ? sanitizeInput(initialTask.descripcion) : '',
+      fecha_entrega: initialTask.fecha_entrega
+        ? formatDateForInput(initialTask.fecha_entrega)
+        : ''
     });
 
     const [errors, setErrors] = useState({});
@@ -151,6 +154,29 @@ const TasksLayout = () => {
       
       onSubmit(formState);
     };
+
+    // Función para formatear la fecha al formato YYYY-MM-DD para el input
+    function formatDateForInput(dateString) {
+      if (!dateString) return '';
+      // Si ya viene en formato YYYY-MM-DD, esto lo respeta
+      return dateString.slice(0, 10);
+    }
+
+    // Obtener la fecha de hoy en formato YYYY-MM-DD para el min del input
+    const todayStr = (() => {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    })();
+
+    // Obtener el último día del año actual en formato YYYY-MM-DD para el max del input
+    const endOfYearStr = (() => {
+      const d = new Date();
+      const year = d.getFullYear();
+      return `${year}-12-31`;
+    })();
 
     return (
       <form onSubmit={handleSubmit}>
@@ -208,6 +234,8 @@ const TasksLayout = () => {
                 value={formState.fecha_entrega}
                 onChange={handleChange}
                 className="tasks-form-input"
+                min={todayStr}
+                max={endOfYearStr}
               />
               {errors.fecha_entrega && <span className="error-message">{errors.fecha_entrega}</span>}
             </div>

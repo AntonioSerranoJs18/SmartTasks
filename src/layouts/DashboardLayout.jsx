@@ -16,6 +16,7 @@ import {
   FaCog
 } from 'react-icons/fa';
 import SearchBar from '../components/SearchBar';
+import AlertDialog from '../src-react/components/AlertDialog';
 
 const DashboardLayout = () => {
   const [sidebarActive, setSidebarActive] = useState(false);
@@ -23,6 +24,7 @@ const DashboardLayout = () => {
   const [userInitial] = useState('C');
   const [statusMessage, setStatusMessage] = useState('');
   const [statusClass, setStatusClass] = useState('');
+  const [showLogoutAlert, setShowLogoutAlert] = useState(false);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,8 +41,24 @@ const DashboardLayout = () => {
       setStatusMessage('');
       localStorage.removeItem('isAuthenticated');
       localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userName');
       navigate('/login');
     }, 1500);
+  };
+
+  const handleLogoutClick = () => {
+    setShowLogoutAlert(true);
+  };
+
+  const handleCancelLogout = () => {
+    setShowLogoutAlert(false);
+  };
+
+  const handleConfirmLogout = () => {
+    setShowLogoutAlert(false);
+    logout();
   };
 
   const handleSearch = (query) => {
@@ -54,7 +72,6 @@ const DashboardLayout = () => {
     { name: 'Proyectos', href: '/projects', icon: FaProjectDiagram },
     { name: 'Equipo', href: '/team', icon: FaUsers },
     { name: 'Calendario', href: '/calendar', icon: FaCalendarAlt },
-    { name: 'Ajustes', href: '/settings', icon: FaCog },
   ];
 
   const isActive = (path) => {
@@ -93,10 +110,7 @@ const DashboardLayout = () => {
           
           {/* Botón de cerrar sesión */}
           <div className="nav-bottom">
-            <div 
-              className="nav-link logout-btn" 
-              onClick={logout}
-            >
+            <div className="nav-link logout-btn" onClick={handleLogoutClick}>
               <FaSignOutAlt />
               <span>Cerrar Sesión</span>
             </div>
@@ -132,6 +146,16 @@ const DashboardLayout = () => {
           <Outlet />
         </div>
       </div>
+
+      <AlertDialog
+        isOpen={showLogoutAlert}
+        title="Cerrar Sesión"
+        message="¿Estás seguro de que deseas cerrar sesión?"
+        onConfirm={handleConfirmLogout}
+        onCancel={handleCancelLogout}
+        confirmText="Salir"
+        cancelText="Cancelar"
+      />
 
     </div>
   );
