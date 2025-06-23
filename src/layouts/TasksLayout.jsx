@@ -148,7 +148,23 @@ const TasksLayout = () => {
       setFormState(prev => ({ ...prev, [name]: cleanValue }));
       
       // Validación en tiempo real
-      if (name === 'fecha_entrega' && value && !isValidDate(value)) {
+      if (name === 'titulo') {
+        if (!cleanValue.trim()) {
+          setErrors(prev => ({ ...prev, titulo: 'Título es requerido' }));
+        } else if (cleanValue.length > 100) {
+          setErrors(prev => ({ ...prev, titulo: 'El título no puede exceder los 100 caracteres' }));
+        } else {
+          setErrors(prev => ({ ...prev, titulo: null }));
+        }
+      } else if (name === 'descripcion') {
+        if (!cleanValue.trim()) {
+          setErrors(prev => ({ ...prev, descripcion: 'Descripción es requerida' }));
+        } else if (cleanValue.length > 500) {
+          setErrors(prev => ({ ...prev, descripcion: 'La descripción no puede exceder los 500 caracteres' }));
+        } else {
+          setErrors(prev => ({ ...prev, descripcion: null }));
+        }
+      } else if (name === 'fecha_entrega' && value && !isValidDate(value)) {
         setErrors(prev => ({ ...prev, fecha_entrega: 'Formato de fecha inválido' }));
       } else if (name === 'prioridad' && !isValidPriority(value)) {
         setErrors(prev => ({ ...prev, prioridad: 'Prioridad inválida' }));
@@ -164,8 +180,18 @@ const TasksLayout = () => {
       
       // Validación final antes de enviar
       const newErrors = {};
-      if (!formState.titulo.trim()) newErrors.titulo = 'Título es requerido';
-      if (!formState.descripcion.trim()) newErrors.descripcion = 'Descripción es requerida';
+      if (!formState.titulo.trim()) {
+        newErrors.titulo = 'Título es requerido';
+      } else if (formState.titulo.length > 100) {
+        newErrors.titulo = 'El título no puede exceder los 100 caracteres';
+      }
+      
+      if (!formState.descripcion.trim()) {
+        newErrors.descripcion = 'Descripción es requerida';
+      } else if (formState.descripcion.length > 500) {
+        newErrors.descripcion = 'La descripción no puede exceder los 500 caracteres';
+      }
+      
       if (formState.fecha_entrega && !isValidDate(formState.fecha_entrega)) newErrors.fecha_entrega = 'Fecha inválida';
       if (!isValidPriority(formState.prioridad)) newErrors.prioridad = 'Prioridad inválida';
       if (isEdit && !isValidStatus(formState.estado)) newErrors.estado = 'Estado inválido';
@@ -215,6 +241,14 @@ const TasksLayout = () => {
               maxLength="100"
               required
             />
+            <div className="tasks-form-counter">
+              <span className={
+                formState.titulo.length >= 100 ? 'counter-error' :
+                formState.titulo.length >= 90 ? 'counter-warning' : 'counter-normal'
+              }>
+                {formState.titulo.length}/100 caracteres
+              </span>
+            </div>
             {errors.titulo && <span className="error-message">{errors.titulo}</span>}
           </div>
           
@@ -229,6 +263,14 @@ const TasksLayout = () => {
               maxLength="500"
               required
             />
+            <div className="tasks-form-counter">
+              <span className={
+                formState.descripcion.length >= 500 ? 'counter-error' :
+                formState.descripcion.length >= 450 ? 'counter-warning' : 'counter-normal'
+              }>
+                {formState.descripcion.length}/500 caracteres
+              </span>
+            </div>
             {errors.descripcion && <span className="error-message">{errors.descripcion}</span>}
           </div>
           

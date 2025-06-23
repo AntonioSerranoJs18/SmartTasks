@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { useTasks } from '../src-react/context/TaskContext';
+import { clearAuth } from '../utils/auth';
 import { 
   FaTachometerAlt, 
   FaTasks, 
@@ -42,11 +43,7 @@ const DashboardLayout = () => {
     setTimeout(() => {
       setStatusMessage('');
       resetRemindersFlag();
-      localStorage.removeItem('isAuthenticated');
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
-      localStorage.removeItem('userId');
-      localStorage.removeItem('userName');
+      clearAuth();
       navigate('/login');
     }, 1500);
   };

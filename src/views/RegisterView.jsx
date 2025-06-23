@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
 const RegisterView = () => {
@@ -10,13 +10,74 @@ const RegisterView = () => {
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [registrationAttempts, setRegistrationAttempts] = useState(0);
+  const [isBlocked, setIsBlocked] = useState(false);
   const navigate = useNavigate();
+
+  // Función para sanitizar inputs
+  const sanitizeInput = (input) => {
+    if (typeof input !== 'string') return '';
+    return input
+      .trim()
+      .replace(/[<>]/g, '') // Remover caracteres potencialmente peligrosos
+      .slice(0, 100); // Limitar longitud
+  };
+
+  // Función para validar email de forma segura
+  const validateEmail = (email) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email) && email.length <= 254;
+  };
+
+  // Función para validar nombre de forma segura
+  const validateName = (name) => {
+    const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,50}$/;
+    return nameRegex.test(name) && name.length >= 2 && name.length <= 50;
+  };
+
+  // Función para validar contraseña de forma segura
+  const validatePassword = (password) => {
+    // Mínimo 8 caracteres, máximo 128
+    if (password.length < 8 || password.length > 128) return false;
+    
+    // Debe contener al menos una mayúscula, una minúscula, un número y un carácter especial
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
+    
+    return hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar;
+  };
+
+  // Función para verificar si el registro está bloqueado
+  const checkRegistrationBlock = () => {
+    const lastAttempt = localStorage.getItem('lastRegistrationAttempt');
+    const attempts = parseInt(localStorage.getItem('registrationAttempts') || '0');
+    
+    if (lastAttempt && attempts >= 3) {
+      const timeDiff = Date.now() - parseInt(lastAttempt);
+      const blockDuration = 30 * 60 * 1000; // 30 minutos
+      
+      if (timeDiff < blockDuration) {
+        setIsBlocked(true);
+        return true;
+      } else {
+        // Resetear intentos después del tiempo de bloqueo
+        localStorage.removeItem('registrationAttempts');
+        localStorage.removeItem('lastRegistrationAttempt');
+        setRegistrationAttempts(0);
+        setIsBlocked(false);
+      }
+    }
+    return false;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    const sanitizedValue = sanitizeInput(value);
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: sanitizedValue
     }));
     // Clear error when user starts typing
     if (errors[name]) {
@@ -30,29 +91,31 @@ const RegisterView = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.email) {
+    // Validación de email
+    if (!formData.email || formData.email.trim() === '') {
       newErrors.email = 'El correo electrónico es requerido';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!validateEmail(formData.email)) {
       newErrors.email = 'El correo electrónico no es válido';
+    } else if (formData.email.length > 254) {
+      newErrors.email = 'El correo electrónico es demasiado largo';
     }
 
-    if (!formData.fullName) {
+    // Validación de nombre
+    if (!formData.fullName || formData.fullName.trim() === '') {
       newErrors.fullName = 'El nombre completo es requerido';
-    } else if (formData.fullName.length < 2) {
-      newErrors.fullName = 'El nombre debe tener al menos 2 caracteres';
+    } else if (!validateName(formData.fullName)) {
+      newErrors.fullName = 'El nombre debe tener entre 2 y 50 caracteres y solo puede contener letras y espacios';
     }
 
-    if (!formData.password) {
+    // Validación de contraseña
+    if (!formData.password || formData.password.trim() === '') {
       newErrors.password = 'La contraseña es requerida';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'La contraseña debe tener al menos 8 caracteres';
-    } else if (!/(?=.*[0-9])/.test(formData.password)) {
-      newErrors.password = 'La contraseña debe contener al menos un número';
-    } else if (!/(?=.*[!@#$%^&*])/.test(formData.password)) {
-      newErrors.password = 'La contraseña debe contener al menos un carácter especial (!@#$%^&*)';
+    } else if (!validatePassword(formData.password)) {
+      newErrors.password = 'La contraseña debe tener entre 8 y 128 caracteres, incluir mayúscula, minúscula, número y carácter especial';
     }
 
-    if (!formData.confirmPassword) {
+    // Validación de confirmación de contraseña
+    if (!formData.confirmPassword || formData.confirmPassword.trim() === '') {
       newErrors.confirmPassword = 'Confirma tu contraseña';
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Las contraseñas no coinciden';
@@ -65,37 +128,80 @@ const RegisterView = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Verificar si el registro está bloqueado
+    if (checkRegistrationBlock()) {
+      setErrors({ general: 'Demasiados intentos de registro. Intenta de nuevo en 30 minutos.' });
+      return;
+    }
+
     if (!validateForm()) {
+      return;
+    }
+
+    // Verificar límite de intentos
+    const currentAttempts = parseInt(localStorage.getItem('registrationAttempts') || '0');
+    if (currentAttempts >= 3) {
+      setErrors({ general: 'Demasiados intentos de registro. Intenta de nuevo más tarde.' });
       return;
     }
 
     setIsLoading(true);
 
     try {
+      // Agregar delay para prevenir spam de registros
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
       const response = await fetch('https://sapi-85vo.onrender.com/api/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          nombre: formData.fullName,
-          email: formData.email,
+          nombre: formData.fullName.trim(),
+          email: formData.email.trim().toLowerCase(),
           contraseña_hash: formData.password
         })
       });
       const data = await response.json();
       if (response.ok) {
+        // Registro exitoso - resetear intentos
+        localStorage.removeItem('registrationAttempts');
+        localStorage.removeItem('lastRegistrationAttempt');
+        setRegistrationAttempts(0);
+
         // Registro exitoso
         localStorage.setItem('userName', data.usuario.nombre);
         alert('Usuario registrado correctamente. Ahora puedes iniciar sesión.');
         navigate('/login');
       } else {
-        setErrors({ general: data.error || 'Error al registrarse. Inténtalo de nuevo.' });
+        // Registro fallido - incrementar intentos
+        const newAttempts = currentAttempts + 1;
+        localStorage.setItem('registrationAttempts', newAttempts.toString());
+        localStorage.setItem('lastRegistrationAttempt', Date.now().toString());
+        setRegistrationAttempts(newAttempts);
+
+        if (newAttempts >= 3) {
+          setIsBlocked(true);
+          setErrors({ general: 'Demasiados intentos de registro. Cuenta bloqueada por 30 minutos.' });
+        } else {
+          setErrors({ general: data.error || 'Error al registrarse. Inténtalo de nuevo.' });
+        }
       }
     } catch {
+      // Error de red - incrementar intentos
+      const newAttempts = currentAttempts + 1;
+      localStorage.setItem('registrationAttempts', newAttempts.toString());
+      localStorage.setItem('lastRegistrationAttempt', Date.now().toString());
+      setRegistrationAttempts(newAttempts);
+
       setErrors({ general: 'Error de red. Inténtalo de nuevo.' });
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Verificar bloqueo al cargar el componente
+  useEffect(() => {
+    checkRegistrationBlock();
+  }, []);
 
   return (
     <div className="register-view">
@@ -186,7 +292,7 @@ const RegisterView = () => {
                 <p className="register-form-error">{errors.password}</p>
               )}
               <p className="register-form-hint">
-                Mínimo 8 caracteres, incluir número y carácter especial
+                Mínimo 8 caracteres, incluir al menos una mayúscula, una minúscula, un número y un carácter especial
               </p>
             </div>
 
@@ -210,7 +316,7 @@ const RegisterView = () => {
               )}
             </div>
 
-            <div className="register-terms">
+            {/* <div className="register-terms">
               <input
                 id="terms"
                 name="terms"
@@ -227,7 +333,7 @@ const RegisterView = () => {
                   política de privacidad
                 </a>
               </label>
-            </div>
+            </div> */}
 
             <button
               type="submit"
